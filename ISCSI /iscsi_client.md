@@ -189,3 +189,52 @@ o- backstores ..................................................................
 /backstores> cd ..
 /> cd iscsi
 /iscsi> 
+
+
+
+ 1  hostname
+    2  hostnamectl set-hostname iscsi_client
+    3  hostname
+    4  yum install -y iscsi-initiator-utils
+    5  systemctl stop firewalld
+    6  targetcli
+    7  yum install -y targetcli
+    8  targetcli
+    9  cat /etc/iscsi/initiatorname.iscsi
+   10  iscsi
+   11  hostname
+   12  yum install -y iscsi-initiator-utils
+   13  cd /etc/iscsi/
+   14  cat initiatorname.iscsi
+   15  systemctl restart iscsi
+   16  iscsiadm -m -t st -p 192.168.239.146 --login
+   17  yum install -y iscsi-initiator-utils
+   18  cd
+   19  iscsiadm -m -t st -p 192.168.239.146 --login
+   20  iscsiadm -m session
+   21  lsblk
+   22  systemctl start iscsi
+   23  iscsiadm -m session
+   24  iscsiadm -m -t st -p 192.168.239.146 --login
+   25  lsblk
+   26  history
+   27  cd /etc/iscsi/
+   28  cat initiatorname.iscsi
+   29  iscsiadm -m discovery -t st -p 192.168.239.146
+   30  lsblk
+   31  fdisk -l
+   32  lsblk
+   33  iscsiadm -m discovery -t st -p 192.168.239.146 --login
+   34  lsblk
+   35  fdisk -l
+   36  fdisk /dev/sdb
+   37  fdisk -l
+   38  mkdir /mnt/disk-1
+   39  mkfs.ext4 /dev/sdb
+   40  mount /dev/sdb1 /mnt/disk-1/
+   41  mount /dev/sdb /mnt/disk-1/
+   42  lsblk
+   43  mount /dev/sdh1 /mnt/disk-1/
+   44  iscsiadm -m -t st -p 192.168.239.146 --login
+   45  history
+
