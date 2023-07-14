@@ -199,3 +199,25 @@ o- / ..................................................................... [...]
   o- loopback ..................................................... [Targets: 0]
 />
 
+
+1  lsblk
+    2  pvcreate
+    3  pvcreate /dev/sdb /dev/sdc /dev/sdd /dev/sde
+    4  vgcreate vg_iscsi /dev/sdb /dev/sdc /dev/sdd /dev/sde
+    5  lvcreate -n lv_iscsi-disk-01 -L 1G vg_iscsi
+    6  lvs
+    7  lvcreate -n lv_iscsi-disk-02 -L 1G vg_iscsi
+    8  yum install -y targetcli
+    9  systemctl stop firewalld
+   10  targetcli
+   11  systemctl restart targetcli
+   12  systemctl restart target
+   13  systemctl status target
+   14  hostname
+   15  hostnamectl set-hostname iscsi_server
+   16  hostname
+   17  targetcli
+   18  systemctl restart target
+   19  systemctl status target
+   20  targetcli
+   21  history
