@@ -4,7 +4,7 @@
    
         #mkdir /mnt/disk1
    
-       This command will create a new directory where the new hard disk will be mounted. 
+   This command will create a new directory where the new hard disk will be mounted. 
 
 3. Format in XFS and create a filesystem on the new hard disk: To do this, you will have to partition the hard disk, format it with a file syste then mount it
 
@@ -14,14 +14,15 @@
    
        #nano /etc/hosts
        
-       Then, add the following lines to the file, which will map the IP addresses to the server names:
+   Then, add the following lines to the file, which will map the IP addresses to the server names:
        txt
-       192.168.xxx.xxx  server1.hpcsa.com server1
-       192.168.xxx.xxx  server2.hpcsa.com server2
-       192.168.xxx.xxx  server3.hpcsa.com server3
-       192.168.xxx.xxx  client.hpcsa.com client
+                   
+         192.168.xxx.xxx  server1.hpcsa.com server1
+         192.168.xxx.xxx  server2.hpcsa.com server2
+         192.168.xxx.xxx  server3.hpcsa.com server3
+         192.168.xxx.xxx  client.hpcsa.com client          
        
-       Replace the "xxx" with the actual numbers of each server and client's IP address.
+   Replace the "xxx" with the actual numbers of each server and client's IP address.
 
 5. Stop the firewall service: Run the following command to stop the firewall service on each server:
    
@@ -84,4 +85,4 @@
    
          mount -t glusterfs server1:/gdisk1 /mnt/gdrive
          
-         Now, the Gluster volume 'gdisk1' is available on the client at the '/mnt/gdrive' directory.
+    Now, the Gluster volume 'gdisk1' is available on the client at the '/mnt/gdrive' directory.
