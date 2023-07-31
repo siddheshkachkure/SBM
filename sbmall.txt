@@ -1,0 +1,837 @@
+Network File System (NFS)
+Required Machines
+Machine1 : 1GB RAM , 20 GB HDD, NAT
+Machine2 : 1GB RAM , 20 GB HDD, NAT
+
+On Both Machine
+# yum nfs-utils.x86_64 -y
+
+On Machine1
+# systemctl start nfs-server
+# systemctl enable nfs-server
+# systemctl status nfs-server
+# chmod 777 /home/
+# vi /etc/exports/
+	/home/ machine2_IP(rw,sync,no_root_squash)
+# exportfs -avr
+
+On Machine2
+# mount -t nfs machine2_IP:/home/ /home/
+# df -h ------> check folder is mounted or not
+
+
+ 
+
+LVM Configuration Commands: Add 2 HDD with booting HDD (Total 3)
+1.	[root@localhost ~]# lsblk
+NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda               8:0    0   20G  0 disk
+├─sda1            8:1    0    1G  0 part /boot
+└─sda2            8:2    0   19G  0 part
+  ├─centos-root 253:0    0   17G  0 lvm  /
+  └─centos-swap 253:1    0    2G  0 lvm  [SWAP]
+sdb               8:16   0   20G  0 disk
+sdc               8:32   0   20G  0 disk
+sr0              11:0    1  973M  0 rom 
+
+2.	[root@localhost ~]# pvcreate /dev/sdb /dev/sdc
+  Physical volume "/dev/sdb" successfully created.
+  Physical volume "/dev/sdc" successfully created.
+
+3.	[root@localhost ~]# pvdisplay
+  --- Physical volume ---
+  PV Name               /dev/sda2
+  VG Name               centos
+  PV Size               <19.00 GiB / not usable 3.00 MiB
+  Allocatable           yes (but full)
+  PE Size               4.00 MiB
+  Total PE              4863
+  Free PE               0
+  Allocated PE          4863
+  PV UUID               tE23TB-FBVR-FRUb-0hLP-hF7k-IPsp-dpyXwJ
+
+  "/dev/sdc" is a new physical volume of "20.00 GiB"
+  --- NEW Physical volume ---
+  PV Name               /dev/sdc
+  VG Name
+  PV Size               20.00 GiB
+  Allocatable           NO
+  PE Size               0
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               8B6yvi-02Bl-amwB-A1hT-wPVb-BzY3-yraV2h
+
+  "/dev/sdb" is a new physical volume of "20.00 GiB"
+  --- NEW Physical volume ---
+  PV Name               /dev/sdb
+  VG Name
+  PV Size               20.00 GiB
+  Allocatable           NO
+  PE Size               0
+  Total PE              0
+  Free PE               0
+  Allocated PE          0
+  PV UUID               P0rDA0-Ret3-9YSg-2wGd-Dpc3-QF7g-yaXQN6
+
+4.	[root@localhost ~]# vgcreate shrushti /dev/sdb /dev/sdc
+  Volume group "shrushti" successfully created
+
+5.	[root@localhost ~]# vgdisplay
+  --- Volume group ---
+  VG Name               shrushti
+  System ID
+  Format                lvm2
+  Metadata Areas        2
+  Metadata Sequence No  1
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                0
+  Open LV               0
+  Max PV                0
+  Cur PV                2
+  Act PV                2
+  VG Size               39.99 GiB
+  PE Size               4.00 MiB
+  Total PE              10238
+  Alloc PE / Size       0 / 0
+  Free  PE / Size       10238 / 39.99 GiB
+  VG UUID               wh5CJO-7t5N-1EEG-97WW-22WE-QbWr-OFhnoX
+
+  --- Volume group ---
+  VG Name               centos
+  System ID
+  Format                lvm2
+  Metadata Areas        1
+  Metadata Sequence No  3
+  VG Access             read/write
+  VG Status             resizable
+  MAX LV                0
+  Cur LV                2
+  Open LV               2
+  Max PV                0
+  Cur PV                1
+  Act PV                1
+  VG Size               <19.00 GiB
+  PE Size               4.00 MiB
+  Total PE              4863
+  Alloc PE / Size       4863 / <19.00 GiB
+  Free  PE / Size       0 / 0
+  VG UUID               l9ikUh-QLUp-8ljK-fCed-87tG-2H3a-9ABodM
+
+6.	[root@localhost ~]# lvcreate -n srushti --size 1G shrushti
+  Logical volume "srushti" created.
+
+7.	[root@localhost ~]# lvdisplay
+  --- Logical volume ---
+  LV Path                /dev/shrushti/srushti
+  LV Name                srushti
+  VG Name                shrushti
+  LV UUID                mSf2BR-0UKC-cLHr-7Pe8-UBsc-jr05-SVxk5I
+  LV Write Access        read/write
+  LV Creation host, time localhost.localdomain, 2023-07-29 23:09:30 +0530
+  LV Status              available
+  # open                 0
+  LV Size                1.00 GiB
+  Current LE             256
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:2
+
+  --- Logical volume ---
+  LV Path                /dev/centos/swap
+  LV Name                swap
+  VG Name                centos
+  LV UUID                eFS7lT-MRee-HJM8-jBVO-g9Ey-5pEY-jxTnrj
+  LV Write Access        read/write
+  LV Creation host, time localhost, 2022-11-27 00:26:15 +0530
+  LV Status              available
+  # open                 2
+  LV Size                2.00 GiB
+  Current LE             512
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:1
+
+  --- Logical volume ---
+  LV Path                /dev/centos/root
+  LV Name                root
+  VG Name                centos
+  LV UUID                yvgaUc-QjVw-K2Jb-XXe8-UUAC-mtmy-uQpKTj
+  LV Write Access        read/write
+  LV Creation host, time localhost, 2022-11-27 00:26:16 +0530
+  LV Status              available
+  # open                 1
+  LV Size                <17.00 GiB
+  Current LE             4351
+  Segments               1
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           253:0
+
+8.	[root@localhost ~]# fdisk /dev/mapper/shrushti-srushti
+Welcome to fdisk (util-linux 2.23.2).
+
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+Device does not contain a recognized partition table
+Building a new DOS disklabel with disk identifier 0x8e071527.
+
+Command (m for help): n
+Partition type:
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended
+Select (default p): p
+Partition number (1-4, default 1):
+First sector (2048-2097151, default 2048):
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-2097151, default 2097151):
+Using default value 2097151
+Partition 1 of type Linux and of size 1023 MiB is set
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+
+WARNING: Re-reading the partition table failed with error 22: Invalid argument.
+The kernel still uses the old table. The new table will be used at
+the next reboot or after you run partprobe(8) or kpartx(8)
+Syncing disks.
+
+9.	[root@localhost ~]# partprobe /dev/shrushti/srushti
+10.	[root@localhost ~]# lsblk
+NAME                  MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                     8:0    0   20G  0 disk
+├─sda1                  8:1    0    1G  0 part /boot
+└─sda2                  8:2    0   19G  0 part
+  ├─centos-root       253:0    0   17G  0 lvm  /
+  └─centos-swap       253:1    0    2G  0 lvm  [SWAP]
+sdb                     8:16   0   20G  0 disk
+└─shrushti-srushti    253:2    0    1G  0 lvm
+  └─shrushti-srushti1 253:3    0 1023M  0 part
+sdc                     8:32   0   20G  0 disk
+sr0                    11:0    1  973M  0 rom
+
+11.	[root@localhost ~]# mkfs.ext4 /dev/mapper/shrushti-srushti
+mke2fs 1.42.9 (28-Dec-2013)
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=0 blocks, Stripe width=0 blocks
+65536 inodes, 262144 blocks
+13107 blocks (5.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=268435456
+8 block groups
+32768 blocks per group, 32768 fragments per group
+8192 inodes per group
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (8192 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+12.	[root@localhost ~]# mkdir demo
+13.	[root@localhost ~]# mount /dev/mapper/shrushti-srushti demo
+14.	[root@localhost ~]# lsblk
+NAME               MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                  8:0    0   20G  0 disk
+├─sda1               8:1    0    1G  0 part /boot
+└─sda2               8:2    0   19G  0 part
+  ├─centos-root    253:0    0   17G  0 lvm  /
+  └─centos-swap    253:1    0    2G  0 lvm  [SWAP]
+sdb                  8:16   0   20G  0 disk
+└─shrushti-srushti 253:2    0    1G  0 lvm  /root/demo
+sdc                  8:32   0   20G  0 disk
+sr0                 11:0    1  973M  0 rom
+
+15.	[root@localhost ~]# lvextend -L +2G /dev/mapper/shrushti-srushti
+  Size of logical volume shrushti/srushti changed from 1.00 GiB (256 extents) to 3.00 GiB (768 extents).
+  Logical volume shrushti/srushti successfully resized.
+16.	[root@localhost ~]# lsblk
+NAME               MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                  8:0    0   20G  0 disk
+├─sda1               8:1    0    1G  0 part /boot
+└─sda2               8:2    0   19G  0 part
+  ├─centos-root    253:0    0   17G  0 lvm  /
+  └─centos-swap    253:1    0    2G  0 lvm  [SWAP]
+sdb                  8:16   0   20G  0 disk
+└─shrushti-srushti 253:2    0    3G  0 lvm  /root/demo
+sdc                  8:32   0   20G  0 disk
+sr0                 11:0    1  973M  0 rom
+
+17.	[root@localhost ~]# resize2fs /dev/mapper/shrushti-srushti
+resize2fs 1.42.9 (28-Dec-2013)
+Filesystem at /dev/mapper/shrushti-srushti is mounted on /root/demo; on-line resizing required
+old_desc_blocks = 1, new_desc_blocks = 1
+The filesystem on /dev/mapper/shrushti-srushti is now 786432 blocks long.
+
+18.	[root@localhost ~]# lsblk
+NAME               MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                  8:0    0   20G  0 disk
+├─sda1               8:1    0    1G  0 part /boot
+└─sda2               8:2    0   19G  0 part
+  ├─centos-root    253:0    0   17G  0 lvm  /
+  └─centos-swap    253:1    0    2G  0 lvm  [SWAP]
+sdb                  8:16   0   20G  0 disk
+└─shrushti-srushti 253:2    0    3G  0 lvm  /root/demo
+sdc                  8:32   0   20G  0 disk
+sr0                 11:0    1  973M  0 rom
+
+
+19.	[root@localhost ~]# lvcreate -L 1GB -s -n demo_snap /dev/mapper/shrushti-srushti
+ Logical volume "demo_snap" created.
+20.	[root@localhost ~]# lsblk
+NAME                     MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                        8:0    0   20G  0 disk
+├─sda1                     8:1    0    1G  0 part /boot
+└─sda2                     8:2    0   19G  0 part
+  ├─centos-root          253:0    0   17G  0 lvm  /
+  └─centos-swap          253:1    0    2G  0 lvm  [SWAP]
+sdb                        8:16   0   20G  0 disk
+├─shrushti-srushti-real  253:3    0    3G  0 lvm
+│ ├─shrushti-srushti     253:2    0    3G  0 lvm  /root/demo
+│ └─shrushti-demo_snap   253:5    0    3G  0 lvm
+└─shrushti-demo_snap-cow 253:4    0    1G  0 lvm
+  └─shrushti-demo_snap   253:5    0    3G  0 lvm
+sdc                        8:32   0   20G  0 disk
+sr0                       11:0    1  973M  0 rom
+
+21.	[root@localhost ~]# lvconvert --merge /dev/mapper/shrushti-demo_snap
+  Delaying merge since origin is open.
+  Merging of snapshot shrushti/demo_snap will occur on next activation of shrushti/srushti.
+
+22.	[root@localhost ~]# lsblk
+NAME                     MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                        8:0    0   20G  0 disk
+├─sda1                     8:1    0    1G  0 part /boot
+└─sda2                     8:2    0   19G  0 part
+  ├─centos-root          253:0    0   17G  0 lvm  /
+  └─centos-swap          253:1    0    2G  0 lvm  [SWAP]
+sdb                        8:16   0   20G  0 disk
+├─shrushti-srushti-real  253:3    0    3G  0 lvm
+│ ├─shrushti-srushti     253:2    0    3G  0 lvm  /root/demo
+│ └─shrushti-demo_snap   253:5    0    3G  0 lvm
+└─shrushti-demo_snap-cow 253:4    0    1G  0 lvm
+  └─shrushti-demo_snap   253:5    0    3G  0 lvm
+sdc                        8:32   0   20G  0 disk
+sr0                       11:0    1  973M  0 rom
+
+23.	[root@localhost ~]# lvcreate -L 2GB -m1 -n testmirror shrushti
+  Logical volume "testmirror" created.
+
+24.	[root@localhost ~]# lsblk
+NAME                           MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda                              8:0    0   20G  0 disk
+├─sda1                           8:1    0    1G  0 part /boot
+└─sda2                           8:2    0   19G  0 part
+  ├─centos-root                253:0    0   17G  0 lvm  /
+  └─centos-swap                253:1    0    2G  0 lvm  [SWAP]
+sdb                              8:16   0   20G  0 disk
+├─shrushti-srushti-real        253:3    0    3G  0 lvm
+│ ├─shrushti-srushti           253:2    0    3G  0 lvm  /root/demo
+│ └─shrushti-demo_snap         253:5    0    3G  0 lvm
+├─shrushti-demo_snap-cow       253:4    0    1G  0 lvm
+│ └─shrushti-demo_snap         253:5    0    3G  0 lvm
+├─shrushti-testmirror_rmeta_0  253:6    0    4M  0 lvm
+│ └─shrushti-testmirror        253:10   0    2G  0 lvm
+└─shrushti-testmirror_rimage_0 253:7    0    2G  0 lvm
+  └─shrushti-testmirror        253:10   0    2G  0 lvm
+sdc                              8:32   0   20G  0 disk
+├─shrushti-testmirror_rmeta_1  253:8    0    4M  0 lvm
+│ └─shrushti-testmirror        253:10   0    2G  0 lvm
+└─shrushti-testmirror_rimage_1 253:9    0    2G  0 lvm
+  └─shrushti-testmirror        253:10   0    2G  0 lvm
+sr0                             11:0    1  973M  0 rom
+
+25.	[root@localhost ~]# lvremove /dev/mapper/shrushti-srushti
+Do you really want to remove active origin logical volume shrushti/srushti with 1 snapshot(s)? [y/n]: y
+  Logical volume shrushti/srushti contains a filesystem in use.
+  Logical volume shrushti/srushti not removed.
+26.	[root@localhost ~]# lsblk
+27.	[root@localhost ~]# lvremove /dev/mapper/shrushti
+Do you really want to remove active origin logical volume shrushti/srushti with 1 snapshot(s)? [y/n]: y
+  Logical volume shrushti/srushti contains a filesystem in use.
+  Logical volume shrushti/srushti not removed.
+Do you really want to remove active logical volume shrushti/testmirror? [y/n]: y
+  Logical volume "testmirror" successfully removed
+28.	 lsblk
+
+
+-------------------------------------------------------------------------------------------------------------------
+
+RAID 0 CONFIGURATION COMMAND:  Add 2 extra disks of 20 GB other than boot disk.    						
+1.	[root@localhost ~]# lsblk
+NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda               8:0    0   20G  0 disk
+├─sda1            8:1    0    1G  0 part /boot
+└─sda2            8:2    0   19G  0 part
+  ├─centos-root 253:0    0   17G  0 lvm  /
+  └─centos-swap 253:1    0    2G  0 lvm  [SWAP]
+sdb               8:16   0   20G  0 disk
+sdc               8:32   0   20G  0 disk
+sr0              11:0    1  973M  0 rom
+
+2.	[root@localhost ~]# yum install mdadm –y
+
+3.	[root@localhost ~]# mdadm --create --verbose /dev/md0 --level=0 --raid-devices=2 /dev/sdb /dev/sdc
+mdadm: chunk size defaults to 512K
+mdadm: Defaulting to version 1.2 metadata
+mdadm: array /dev/md0 started.
+	[root@localhost raid0]# mkfs.ext4 /dev/md0
+4.	[root@localhost raid0]# blkid /dev/md0
+/dev/md0: UUID="92609716-9785-44bf-8a66-52bcdff62965" TYPE="ext4"
+
+5.	[root@localhost raid0]# cat /etc/fstab
+#
+# /etc/fstab
+# Created by anaconda on Sun Nov 27 00:26:18 2022
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/centos-root /                       xfs     defaults        0 0
+UUID=fbf76286-7b82-442d-abd8-5369f4f56909 /boot                   xfs     defaults        0 0
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+
+UUID="92609716-9785-44bf-8a66-52bcdff62965" /mnt/raid0 ext4 defaults 0 0
+
+6.	[root@localhost ~]# cat /proc/mdstat
+Personalities : [raid0]
+md0 : active raid0 sdc[1] sdb[0]
+      41908224 blocks super 1.2 512k chunks
+
+unused devices: <none>
+
+7.	[root@localhost ~]# mdadm --examine /dev/sdc
+
+8.	[root@localhost ~]# mdadm --examine /dev/sdb
+
+9.	[root@localhost ~]# mdadm --detail /dev/md0
+
+10.	[root@localhost ~]# fdisk /dev/md0
+Welcome to fdisk (util-linux 2.23.2).
+
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+Device does not contain a recognized partition table
+Building a new DOS disklabel with disk identifier 0xdd9f00cf.
+
+Command (m for help):
+Command (m for help): n
+Partition type:
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended
+Select (default p): p
+Partition number (1-4, default 1): press enter key
+First sector (2048-83816447, default 2048): press enter key
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-83816447, default 83816447):
+Using default value 83816447
+Partition 1 of type Linux and of size 40 GiB is set
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+
+11.	[root@localhost ~]# mkfs.ext4 /dev/md0
+mke2fs 1.42.9 (28-Dec-2013)
+Filesystem label=
+OS type: Linux
+Block size=4096 (log=2)
+Fragment size=4096 (log=2)
+Stride=128 blocks, Stripe width=256 blocks
+2621440 inodes, 10477056 blocks
+523852 blocks (5.00%) reserved for the super user
+First data block=0
+Maximum filesystem blocks=2157969408
+320 block groups
+32768 blocks per group, 32768 fragments per group
+8192 inodes per group
+Superblock backups stored on blocks:
+        32768, 98304, 163840, 229376, 294912, 819200, 884736, 1605632, 2654208,
+       4096000, 7962624
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (32768 blocks): done
+Writing superblocks and filesystem accounting information: done
+
+12.	[root@localhost ~]# mkdir /mnt/raid0
+13.	[root@localhost ~]# mount /dev/md0 /mnt/raid0
+14.	[root@localhost ~]# cd /mnt/raid0/
+15.	[root@localhost raid0]# ls
+lost+found
+16.	[root@localhost raid0]# touch test
+17.	[root@localhost raid0]# ls
+lost+found  test
+18.	[root@localhost raid0]# df -h
+Filesystem               Size  Used Avail Use% Mounted on
+devtmpfs                 475M     0  475M   0% /dev
+tmpfs                    487M     0  487M   0% /dev/shm
+tmpfs                    487M  7.7M  479M   2% /run
+tmpfs                    487M     0  487M   0% /sys/fs/cgroup
+/dev/mapper/centos-root   17G  1.5G   16G   9% /
+/dev/sda1               1014M  138M  877M  14% /boot
+tmpfs                     98M     0   98M   0% /run/user/0
+/dev/md0                  40G   49M   38G   1% /mnt/raid0
+19.	[root@localhost raid0]# dd if=/dev/zero of=shrusti.file bs=1024 count=500000
+500000+0 records in
+500000+0 records out
+512000000 bytes (512 MB) copied, 3.15731 s, 162 MB/s
+
+20.	[root@localhost ~]# lsblk
+NAME            MAJ:MIN RM  SIZE RO TYPE  MOUNTPOINT
+sda               8:0    0   20G  0 disk
+├─sda1            8:1    0    1G  0 part  /boot
+└─sda2            8:2    0   19G  0 part
+  ├─centos-root 253:0    0   17G  0 lvm   /
+  └─centos-swap 253:1    0    2G  0 lvm   [SWAP]
+sdb               8:16   0   20G  0 disk
+└─md0             9:0    0   40G  0 raid0 /mnt/raid0
+sdc               8:32   0   20G  0 disk
+└─md0             9:0    0   40G  0 raid0 /mnt/raid0
+sr0              11:0    1  973M  0 rom
+
+21.	
+		
+
+RAID 1 CONFIGURATION COMMAND:  Add 2 extra disks of 20 GB other than boot disk.    
+
+1.	Lsblk
+
+2.	[root@localhost ~]# yum install mdadm  
+
+3.	[root@localhost ~]# mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+mdadm: Note: this array has metadata at the start and
+    may not be suitable as a boot device.  If you plan to
+    store '/boot' on this device please ensure that
+    your boot-loader understands md/v1.x metadata, or use
+    --metadata=0.90
+mdadm: size set to 20954112K
+Continue creating array? (y/n) y
+mdadm: Defaulting to version 1.2 metadata
+mdadm: array /dev/md1 started.
+
+4.	[root@localhost ~]# mdadm --examine /dev/sdb
+5.	[root@localhost ~]# mdadm --examine /dev/sdc
+6.	[root@localhost ~]# mdadm --detail /dev/md1
+7.	[root@localhost ~]# mkfs.ext4 /dev/md1
+8.	[root@localhost ~]# mkdir /mnt/raid1
+9.	[root@localhost ~]# mount /dev/md1 /mnt/raid1/
+10.	[root@localhost ~]# df –h
+11.	[root@localhost ~]# blkid /dev/md1
+12.	[root@localhost ~]# vi /etc/fstab
+13.	[root@localhost ~]# cat /etc/fstab
+#
+# /etc/fstab
+# Created by anaconda on Sun Nov 27 00:26:18 2022
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/centos-root /                       xfs     defaults        0 0
+UUID=fbf76286-7b82-442d-abd8-5369f4f56909 /boot                   xfs     defaults        0 0
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+UUID="abae046e-6475-4a75-a2ca-9b4669b5d7ba" /mnt/raid1 ext4 defaults 0 0
+14.	[root@localhost ~]# mdadm --detail /dev/md1
+15.	[root@localhost ~]# cd /mnt/raid1/
+16.	[root@localhost raid1]# echo test > raid1.txt
+17.	[root@localhost raid1]# umount /mnt/raid1
+18.	[root@localhost raid1]# mdadm --stop /dev/md1
+19.	[root@localhost raid1]# mdadm --remove /dev/md1
+20.	[root@localhost raid1]# cat /mnt/raid1/raid1.txt
+
+
+
+RAID 5 CONFIGURATION COMMAND:  Add 4 extra disks of 20 GB other than boot disk.    
+1.	[root@localhost ~]# yum install mdadm –y
+2.	[root@localhost ~]# lsblk
+3.	[root@localhost ~]# mdadm --create --verbose /dev/md5 --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd --spare-devices=1 /dev/sde
+4.	[root@localhost ~]# cat /proc/mdstat
+Personalities : [raid6] [raid5] [raid4]
+md5 : active raid5 sdd[4] sde[3](S) sdc[1] sdb[0]
+     4188160 blocks super 1.2 level 5, 512k chunk, algorithm 2 [3/3] [UUU]
+
+unused devices: <none>
+5.	[root@localhost ~]# fdisk /dev/md5
+Welcome to fdisk (util-linux 2.23.2).
+
+Changes will remain in memory only, until you decide to write them.
+Be careful before using the write command.
+
+Device does not contain a recognized partition table
+Building a new DOS disklabel with disk identifier 0x3470b31d.
+
+Command (m for help): n
+Partition type:
+   p   primary (0 primary, 0 extended, 4 free)
+   e   extended
+Select (default p): p
+Partition number (1-4, default 1):
+First sector (2048-8376319, default 2048):
+Using default value 2048
+Last sector, +sectors or +size{K,M,G} (2048-8376319, default 8376319):
+Using default value 8376319
+Partition 1 of type Linux and of size 4 GiB is set
+
+Command (m for help): w
+The partition table has been altered!
+
+Calling ioctl() to re-read partition table.
+Syncing disks.
+6.	[root@localhost ~]# mkfs.ext4 /dev/md5
+7.	[root@localhost ~]# mkdir /mnt/raid5
+8.	[root@localhost ~]# mount /dev/md5 /mnt/raid5/
+9.	[root@localhost ~]# df -TH
+Filesystem              Type      Size  Used Avail Use% Mounted on
+devtmpfs                devtmpfs  498M     0  498M   0% /dev
+tmpfs                   tmpfs     510M     0  510M   0% /dev/shm
+tmpfs                   tmpfs     510M  8.1M  502M   2% /run
+tmpfs                   tmpfs     510M     0  510M   0% /sys/fs/cgroup
+/dev/mapper/centos-root xfs        19G  1.6G   17G   9% /
+/dev/sda1               xfs       1.1G  144M  920M  14% /boot
+tmpfs                   tmpfs     102M     0  102M   0% /run/user/0
+/dev/md5                ext4      4.2G   17M  4.0G   1% /mnt/raid5
+10.	[root@localhost ~]# cd /mnt/raid5/
+11.	[root@localhost raid5]# mdadm --detail /dev/md5
+12.	[root@localhost raid5]# echo This is RAID5 > test.txt
+13.	[root@localhost raid5]# cat test.txt
+14.	[root@localhost raid5]# vi /etc/fstab
+15.	[root@localhost raid5]# cat /etc/fstab
+#
+# /etc/fstab
+# Created by anaconda on Sun Nov 27 00:26:18 2022
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/centos-root /                       xfs     defaults        0 0
+UUID=fbf76286-7b82-442d-abd8-5369f4f56909 /boot                   xfs     defaults        0 0
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+UUID="140051d1-f9fb-4899-8042-11768cb6afe9" /mnt/raid5 ext4 defaults 0 0
+16.	[root@localhost raid5]# mount –a
+17.	[root@localhost raid5]# mdadm --detail /dev/md5
+18.	[root@localhost raid5]# mdadm --fail /dev/md5 /dev/sdc
+19.	[root@localhost raid5]# mdadm --detail /dev/md5
+20.	[root@localhost raid5]# mdadm -r /dev/md5
+21.	[root@localhost raid5]# mdadm -r /dev/md5 /dev/sdc
+mdadm: hot removed /dev/sdc from /dev/md5
+22.	[root@localhost raid5]# mdadm --add /dev/md5 /dev/sdc
+23.	[root@localhost raid5]# lsblk
+
+
+RAID 5 CONFIGURATION COMMAND:  Add 4 extra disks of 2 GB other than boot disk.    
+1.	[root@localhost ~]# lsblk
+2.	[root@localhost ~]# yum install mdadm –y
+3.	[root@localhost ~]# mdadm --create --verbose /dev/md10 --level=10 --raid-devices=4 /dev/sdb /dev/sdc /dev/sdd /dev/sde
+4.	[root@localhost ~]# mkfs.ext4 /dev/md10
+5.	[root@localhost ~]# mkdir /mnt/raid10
+6.	[root@localhost ~]# mount /dev/md10 /mnt/raid10/
+7.	[root@localhost ~]# df –TH
+8.	[root@localhost ~]# lsblk
+9.	[root@localhost ~]# blkid /dev/md10
+/dev/md10: UUID="91f46cc9-175a-446a-9c39-8252d97e5d07" TYPE="ext4"
+10.	[root@localhost ~]# vi /etc/fstab
+11.	[root@localhost ~]# cat /etc/fstab
+#
+# /etc/fstab
+# Created by anaconda on Sun Nov 27 00:26:18 2022
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+/dev/mapper/centos-root /                       xfs     defaults        0 0
+UUID=fbf76286-7b82-442d-abd8-5369f4f56909 /boot                   xfs     defaults        0 0
+/dev/mapper/centos-swap swap                    swap    defaults        0 0
+UUID="91f46cc9-175a-446a-9c39-8252d97e5d07" /mnt/raid10 ext4 defaults 0 0
+12.	[root@localhost ~]# mount –a
+13.	[root@localhost ~]# lsblk
+14.	[root@localhost ~]# mdadm --detail /dev/md10
+15.	[root@localhost ~]# mdadm --fail /dev/md10 /dev/sde
+16.	[root@localhost ~]# mdadm --detail /dev/md10
+17.	[root@localhost ~]# mdadm --remove /dev/md10 /dev/sde
+18.	[root@localhost ~]# mdadm --detail /dev/md10
+19.	[root@localhost ~]# mdadm --add /dev/md10 /dev/sde
+20.	[root@localhost ~]# mdadm --detail /dev/md10
+
+
+
+
+
+GlusterFS Practical
+
+Required Machines
+Storage1 : 1GB RAM, 20+20+20 GB HDD, NAT
+Storage2  : 1GB RAM, 20+20+20 GB HDD, NAT
+Storage3  : 1GB RAM, 20+20+20 GB HDD, NAT
+Client : 1GB RAM, 20 GB HDD, NAT
+
+On All Machines
+# systemctl stop firewalld.service && systemctl disable firewalld.service
+#yum install rsync -y
+
+On Storage1 Machine
+# vi /etc/hosts
+192.168.44.160 node1.hpcsa.in
+192.168.44.161 node2.hpcsa.in
+192.168.44.162 node3.hpcsa.in
+192.168.44.163 client.hpcsa.in
+
+# rsync /etc/hosts root@node2.hpcsa.in:/etc/hosts
+# rsync /etc/hosts root@node3.hpcsa.in:/etc/hosts
+# rsync /etc/hosts root@client.hpcsa.in:/etc/hosts
+
+On Storage 1,2,3 Machines
+# fdisk /dev/sdb
+# mkfs.ext4 /dev/sdb1
+# mkdir /mnt/disk1
+# mount /dev/sdb1 /mnt/disk1
+# lsblk
+# yum install centos-release-gluster -y
+# yum install epel-release -y
+# yum install glusterfs-server -y
+# systemctl start glusterd.service && systemctl enable glusterd.service && systemctl status glusterd.service
+
+
+On Storage 1 Machines
+# gluster peer probe node2.hpcsa.in
+# gluster peer probe node3.hpcsa.in
+# gluster pool list
+# gluster peer status
+On All Machines
+# mkdir /mnt/disk1/diskvol
+
+Replication
+On Storage 1 Machines
+# gluster volume create gdisk1 replica 3 node1.hpcsa.in:/mnt/disk1/diskvol/gdisk1 node2.hpcsa.in:/mnt/disk1/diskvol/gdisk1 node3.hpcsa.in:/mnt/disk1/diskvol/gdisk1
+# gluster volume start gdisk1
+# gluster volume info gdisk1
+
+On Client Machine
+# yum install glusterfs-fuse -y
+# mkdir /mnt/gdrive
+# mount -t glusterfs node1.hpcsa.in:/gdisk1 /mnt/gdrive
+# df –h
+# cd /mnt/gdrive/
+# dd if=/dev/zero of=file.txt bs=1024 count=1024 
+Now you can check same file in this path /mnt/disk1/diskvol/gdisk1/ in all 3 stoarage nodes  
+Distributed
+On Storage 1 Machines
+# gluster volume create gdisk2 node1.hpcsa.in:/mnt/disk1/diskvol/gdisk2 node2.hpcsa.in:/mnt/disk1/diskvol/gdisk2 node3.hpcsa.in:/mnt/disk1/diskvol/gdisk2
+# gluster volume start gdisk2
+# gluster volume info gdisk2
+On Client Machine
+# mkdir /mnt/distribute
+# mount -t glusterfs node1.hpcsa.in:/gdisk2 /mnt/distribute
+# df –h
+# cd /mnt/distribute/
+# dd if=/dev/zero of=file.txt bs=1024 count=1024 
+# dd if=/dev/zero of=file1.txt bs=1024 count=1024
+# dd if=/dev/zero of=file2.txt bs=1024 count=1024
+# dd if=/dev/zero of=file3.txt bs=1024 count=1024
+# dd if=/dev/zero of=file4.txt bs=1024 count=1024
+Now all your 5 files are distributed in all 3 storage machines randomly and you can check it distributed files in this path  /mnt/disk1/diskvol/gdisk2/   of all 3 machines
+Disperse
+On Storage 1 Machines
+# gluster volume create gdisk3 disperse 3 node1.hpcsa.in:/mnt/disk1/diskvol/gdisk3 node2.hpcsa.in:/mnt/disk1/diskvol/gdisk3 node3.hpcsa.in:/mnt/disk1/diskvol/gdisk3
+# gluster volume start gdisk3
+# gluster volume info gdisk3
+
+On Client Machine
+# mkdir /mnt/disperse
+# mount -t glusterfs node1.hpcsa.in:/gdisk1 /mnt/disperse
+# df –h
+# cd /mnt/disperse/
+# dd if=/dev/zero of=file.txt bs=1024 count=1024 
+
+Now in 2 storage nodes file will be stored in disperse mode & in remaining node parity of the file will be store
+
+
+
+ISCSI RAID CONF Installation
+
+Required Machines
+Server : 1GB RAM, 20 GB x 4 HDD, NAT 
+Client : 1GB RAM, 20 GB HDD
+
+ON Server
+# pvcreate /dev/sdb /dev/sdc /dev/sdd
+# vgcreate vg-iscsi /dev/sdb /dev/sdc /dev/sdd
+# lvcreate –n lv-iscsi-disk-01 -L 1G vg-iscsi
+ # lvcreate –n lv-iscsi-disk-02 -L 1G vg-iscsi
+# lvs
+# systemctl stop firewalld && systemctl disable firewalld
+# yum install targetcli
+# targetcli -------------> now you get new command line shell
+> cd backstores/block
+> create block /dev/mapper/vg--iscsi-lv--iscsi--disk—01
+> cd ..
+> ls
+> cd ..
+> cd iscsi
+> create iqn.2023-07.cdac.acts.hpcsa.sbm:disk1
+> cd iqn.2023-07.cdac.acts.hpcsa.sbm:disk1/
+
+ON Client
+# yum install iscsi-initiator-utils –y
+# systemctl stop firewalld && systemctl disable firewalld
+# cat /etc/iscsi/initiatorname.iscsi
+-----> Now copy initiator Name 
+
+ON Server
+> cd tpg1/acls
+> create iqn.1994-05.com.redhat:325fceb1a773
+   copied initiator name 
+> cd ..
+> cd luns
+> create /backstores/block/block
+> ls
+> exit
+# systemctl restart target
+
+ON Client
+# iscsiadm -m discovery -t st -p 192.168.44.164 --login
+Server ip
+# fdisk /dev/sdb
+# mkfs.ext4 /dev/sdb1
+# mkdir /mnt/iscsilab
+# mount /dev/sdb1 /mnt/iscsilab
+# cd /mnt/iscsilab/
+# dd if=/dev/zero of=file.txt bs=1024 count=520040
+# df -h
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
