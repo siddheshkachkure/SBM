@@ -20,7 +20,7 @@ On Machine2
 # df -h ------> check folder is mounted or not
 
 
- 
+ ----------------------------------------------------------------------------------------------------
 
 LVM Configuration Commands: Add 2 HDD with booting HDD (Total 3)
 1.	[root@localhost ~]# lsblk
@@ -508,7 +508,7 @@ sdc               8:32   0   20G  0 disk
 sr0              11:0    1  973M  0 rom
 
 21.	
-		
+-----------------------------------------------------------------------------------------------------------------------------------------------		
 
 RAID 1 CONFIGURATION COMMAND:  Add 2 extra disks of 20 GB other than boot disk.    
 
@@ -556,7 +556,7 @@ UUID="abae046e-6475-4a75-a2ca-9b4669b5d7ba" /mnt/raid1 ext4 defaults 0 0
 19.	[root@localhost raid1]# mdadm --remove /dev/md1
 20.	[root@localhost raid1]# cat /mnt/raid1/raid1.txt
 
-
+--------------------------------------------------------------------------------------------------------------------------------------------------------
 
 RAID 5 CONFIGURATION COMMAND:  Add 4 extra disks of 20 GB other than boot disk.    
 1.	[root@localhost ~]# yum install mdadm –y
@@ -633,9 +633,9 @@ UUID="140051d1-f9fb-4899-8042-11768cb6afe9" /mnt/raid5 ext4 defaults 0 0
 mdadm: hot removed /dev/sdc from /dev/md5
 22.	[root@localhost raid5]# mdadm --add /dev/md5 /dev/sdc
 23.	[root@localhost raid5]# lsblk
+-------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-RAID 5 CONFIGURATION COMMAND:  Add 4 extra disks of 2 GB other than boot disk.    
+RAID 10 CONFIGURATION COMMAND:  Add 4 extra disks of 2 GB other than boot disk.    
 1.	[root@localhost ~]# lsblk
 2.	[root@localhost ~]# yum install mdadm –y
 3.	[root@localhost ~]# mdadm --create --verbose /dev/md10 --level=10 --raid-devices=4 /dev/sdb /dev/sdc /dev/sdd /dev/sde
@@ -671,7 +671,7 @@ UUID="91f46cc9-175a-446a-9c39-8252d97e5d07" /mnt/raid10 ext4 defaults 0 0
 
 
 
-
+------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 GlusterFS Practical
 
@@ -762,7 +762,7 @@ On Client Machine
 Now in 2 storage nodes file will be stored in disperse mode & in remaining node parity of the file will be store
 
 
-
+---------------------------------------------------------------------------------------------------------------------------------------------------------
 ISCSI RAID CONF Installation
 
 Required Machines
