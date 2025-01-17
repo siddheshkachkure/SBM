@@ -1,4 +1,3 @@
-    root@192.168.239.155's password:
         ┌──────────────────────────────────────────────────────────────────────┐
         │                 • MobaXterm Personal Edition v23.1 •                 │
         │               (SSH client, X server and network tools)               │
