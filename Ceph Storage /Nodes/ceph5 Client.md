@@ -20,6 +20,7 @@
     NAME    SIZE PARENT FMT PROT LOCK
     disk01 4 GiB          2
     [root@ceph5 ~]# modprobe rbd
+    [root@ceph5 ~]# 
     [root@ceph5 ~]# rbd feature disable disk01 exclusive-lock object-map fast-diff deep-flatten
     [root@ceph5 ~]# rbd map disk01
     /dev/rbd0
