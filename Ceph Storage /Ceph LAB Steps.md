@@ -1,6 +1,6 @@
 ## Nodes Setup
 
-1. Create 5 nodes with 1 GB RAM and 1 core CPU each. Let's denote them as follows:
+1. Create 5 nodes with 1 GB RAM and 1 core CPU each. Let's denote them as follows
 
         * ceph-controller
         * ceph-compute01
