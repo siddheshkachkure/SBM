@@ -29,4 +29,3 @@
     192.168.239.158 ceph5.in
     192.168.239.159 ceph6.in
     [root@ceph1 ~]# systemctl restart chronyd
-    [root@ceph1 ~]#
