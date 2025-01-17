@@ -55,4 +55,5 @@
     #log measurements statistics tracking
     [root@ceph3 ~]# vim /etc/hosts
     [root@ceph3 ~]# systemctl restart chronyd
-    [root@ceph3 ~]#
+
+    
