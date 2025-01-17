@@ -2,10 +2,10 @@
         │                 • MobaXterm Personal Edition v23.1 •                 │
         │               (SSH client, X server and network tools)               │
         │                                                                      │
-        │ ⮞ SSH session to root@192.168.239.157                                │
+        │ ⮞ SSH session to root@192.168.239.157                               |
         │   • Direct SSH      :  ✓                                             │
         │   • SSH compression :  ✓                                             │
-        │   • SSH-browser     :  ✓                                             │
+        │   • SSH-browser     :  ✓                                            |
         │   • X11-forwarding  :  ✗  (disabled or not supported by server)      │
         │                                                                      │
         │ ⮞ For more info, ctrl+click on help or visit our website.            │
