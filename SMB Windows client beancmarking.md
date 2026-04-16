@@ -1,5 +1,5 @@
-# Weka SMB-W Storage Benchmark Guide for Windows Render Farm
-> FIO-based comprehensive storage benchmarking for Weka storage attached via SMB-W as a network drive on Windows render nodes.
+# SMB-W Storage Benchmark Guide for Windows - shared storage drive (SAMBA)
+> FIO-based comprehensive storage benchmarking for SMB storage attached via SMB-W as a network drive on Windows nodes.
 
 ---
 
